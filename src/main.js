@@ -1,22 +1,95 @@
-const minhaPromise = () => new Promise((resolve, reject) => {
-    setTimeout(()=>{resolve('OK')}, 2000);
-});
+import api from './api';
 
-/*minhaPromise().then(response => {
-    console.log(response);
-});*/
+class App {
 
-// a partir do ES8
-/*async function executaPromise() {
-    console.log(await minhaPromise());
-    console.log(await minhaPromise());
-    console.log(await minhaPromise());
+    constructor() {
+        this.repositories = [];
+
+        this.formEl = document.getElementById('repo-form');
+        this.inputEl = document.querySelector('input[name=repository]');
+        this.listEL  = document.getElementById('repo-list');
+
+        this.registerHandlers();
+    }
+
+    registerHandlers() {
+        this.formEl.onsubmit = event => this.addRepository(event);
+    }
+
+    setLoading(loading = true) {
+        if(loading === true) {
+            let loadingEl = document.createElement('span');
+            loadingEl.appendChild(document.createTextNode('...carregando'));
+            loadingEl.setAttribute('id', 'loading');
+
+            this.formEl.appendChild(loadingEl);
+        } else {
+            document.getElementById('loading').remove();
+        }
+    }
+
+    async addRepository(event) {
+        event.preventDefault();
+
+        const repoInput = this.inputEl.value;
+
+        if(repoInput.length === 0) 
+            return;
+        
+        
+        this.setLoading();
+        try {
+            const response = await api.get(`/users/${repoInput}`);
+            //console.log(response.data);
+
+            const { name, avatar_url, bio, url } = response.data;
+
+            this.repositories.push({
+                name,
+                description: bio,
+                avatar_url,
+                html_url: url
+            });
+
+            this.inputEl.value = '';
+
+            this.render();
+        } catch (error) {
+            alert('Usuário não localizado');
+            this.inputEl.value = '';
+        }
+
+        this.setLoading(false);
+    }
+
+    render() {
+        this.listEL.innerHTML = '';
+
+        this.repositories.forEach(repo => {
+            let imgEl = document.createElement('img');
+            imgEl.setAttribute('src', repo.avatar_url);
+
+            let titleEl = document.createElement('strong');
+            titleEl.appendChild(document.createTextNode(repo.name));
+
+            let descriptionEl = document.createElement('p');
+            descriptionEl.appendChild(document.createTextNode(repo.description));
+
+            let linkEl = document.createElement('a');
+            linkEl.setAttribute('href', repo.html_url);
+            linkEl.setAttribute('target', '_blank');
+            linkEl.appendChild(document.createTextNode('Acessar'));
+
+            let listItemEl = document.createElement('li');
+            listItemEl.appendChild(imgEl);
+            listItemEl.appendChild(titleEl);
+            listItemEl.appendChild(descriptionEl);
+            listItemEl.appendChild(linkEl);
+
+            this.listEL.appendChild(listItemEl);
+        });
+    }
+
 }
-*/
 
-const executaPromise = async () => {
-    console.log(await minhaPromise());
-    console.log(await minhaPromise());
-    console.log(await minhaPromise()); 
-};
-executaPromise();
+new App();

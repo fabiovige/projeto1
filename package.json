@@ -1,5 +1,5 @@
 {
-  "name": "CursoES6",
+  "name": "Projeto1",
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
@@ -18,5 +18,8 @@
   "scripts": {
     "dev": "webpack-dev-server --mode=development",
     "build": "webpack --mode=production"
+  },
+  "dependencies": {
+    "axios": "^0.19.2"
   }
 }
